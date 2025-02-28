@@ -48,8 +48,9 @@ async def effect_yazi(event):
         await event.edit("❌ **Şəkil yaradılarkən xəta baş verdi!**")
 
 # **Photofunia effektini tətbiq edən funksiya**
+# **Photofunia effektini tətbiq edən funksiya**
 async def apply_effect(effect_url, text, effect_name):
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
         async with session.get(effect_url) as response:
             if response.status != 200:
                 return None
@@ -73,7 +74,7 @@ async def apply_effect(effect_url, text, effect_name):
                 return None
 
             img_url = "https://m.photofunia.com" + img_tag["src"]
-            async with session.get(img_url) as img_response:
+            async with session.get(img_url, ssl=False) as img_response:
                 img_data = await img_response.read()
                 img_path = f"{effect_name}.jpg"
 
