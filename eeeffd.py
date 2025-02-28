@@ -57,7 +57,7 @@ async def apply_effect(effect_url, text, effect_name):
 
             soup = BeautifulSoup(await response.text(), "html.parser")
 
-        # Effekt üçün formun URL-sini tapırıq
+        # Effekt üçün form-un action URL-sini tapırıq
         form = soup.find("form", {"class": "effect-form"})
         if not form:
             return None
@@ -68,13 +68,16 @@ async def apply_effect(effect_url, text, effect_name):
         # Effektə uyğun şəkil yaratmaq
         async with session.post(form_action, data=payload) as result:
             result_soup = BeautifulSoup(await result.text(), "html.parser")
-            img_tag = result_soup.find("img", {"class": "result-image"})
+            img_tag = result_soup.find("img", class_=["result-image", "img-responsive"])
 
-            if not img_tag:
+            if not img_tag or "src" not in img_tag.attrs:
                 return None
 
             img_url = "https://m.photofunia.com" + img_tag["src"]
             async with session.get(img_url, ssl=False) as img_response:
+                if img_response.status != 200:
+                    return None
+
                 img_data = await img_response.read()
                 img_path = f"{effect_name}.jpg"
 
